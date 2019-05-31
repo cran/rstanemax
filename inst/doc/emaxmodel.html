@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Kenta Yoshida" />
+
+<meta name="date" content="2019-05-28" />
+
+<title>Simple Emax model fit with Stan</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Simple Emax model fit with Stan</h1>
+<h4 class="author"><em>Kenta Yoshida</em></h4>
+<h4 class="date"><em>2019-05-28</em></h4>
+
+
+
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(rstanemax)
+<span class="kw">library</span>(dplyr)
+<span class="kw">library</span>(ggplot2)
+<span class="kw">set.seed</span>(<span class="dv">12345</span>)</code></pre></div>
+<p>This vignette provide an overview of the workflow of Emax model analysis using this package.</p>
+<div id="typical-workflow" class="section level1">
+<h1>Typical workflow</h1>
+<div id="model-run-with-stan_emax-function" class="section level2">
+<h2>Model run with <code>stan_emax</code> function</h2>
+<p><code>stan_emax()</code> is the main function of this package to perform Emax model analysis on the data. This function requires minimum two input arguments - <code>formula</code> and <code>data</code>. In the <code>formula</code> argument, you will specify which columns of <code>data</code> will be used as exposure and response data, in a format similar to <code>stats::lm()</code> function, e.g. <code>response ~ exposure</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(exposure.response.sample)
+
+fit.emax &lt;-<span class="st"> </span><span class="kw">stan_emax</span>(response <span class="op">~</span><span class="st"> </span>exposure, <span class="dt">data =</span> exposure.response.sample)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit.emax
+<span class="co">#&gt; Inference for Stan model: emax.</span>
+<span class="co">#&gt; 4 chains, each with iter=2000; warmup=1000; thin=1; </span>
+<span class="co">#&gt; post-warmup draws per chain=1000, total post-warmup draws=4000.</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;         mean se_mean    sd  2.5%    25%    50%    75%  97.5% n_eff Rhat</span>
+<span class="co">#&gt; emax  106.69    0.10  5.25 96.13 103.20 106.74 110.19 116.93  2739    1</span>
+<span class="co">#&gt; e0      6.81    0.08  4.05 -1.23   4.19   6.80   9.50  14.90  2598    1</span>
+<span class="co">#&gt; ec50  100.68    0.38 20.86 66.04  86.39  98.15 112.65 147.98  2988    1</span>
+<span class="co">#&gt; gamma   1.00     NaN  0.00  1.00   1.00   1.00   1.00   1.00   NaN  NaN</span>
+<span class="co">#&gt; sigma  20.05    0.03  1.35 17.62  19.10  19.97  20.92  22.85  2930    1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Samples were drawn using NUTS(diag_e) at Tue May 28 23:30:06 2019.</span>
+<span class="co">#&gt; For each parameter, n_eff is a crude measure of effective sample size,</span>
+<span class="co">#&gt; and Rhat is the potential scale reduction factor on split chains (at </span>
+<span class="co">#&gt; convergence, Rhat=1).</span></code></pre></div>
+<p><code>plot()</code> function shows the estimated Emax model curve with 95% credible intervals of parameters.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(fit.emax)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>Raw output from <code>rstan</code> is stored in the output variable, and you can access it with <code>$stanfit</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">class</span>(fit.emax<span class="op">$</span>stanfit)
+<span class="co">#&gt; [1] &quot;stanfit&quot;</span>
+<span class="co">#&gt; attr(,&quot;package&quot;)</span>
+<span class="co">#&gt; [1] &quot;rstan&quot;</span></code></pre></div>
+</div>
+<div id="prediction-of-response-with-new-exposure-data" class="section level2">
+<h2>Prediction of response with new exposure data</h2>
+<p><code>posterior_predict()</code> function allows users to predict the response using new exposure data. If <code>newdata</code> is not provided, the function returns the prediction on the exposures in original data. The default output is a matrix of posterior predictions, but you can also specify “dataframe” or “tibble” that contain posterior predictions in a long format. See help of <code>rstanemax::posterior_predict()</code> for the description of two predictions, <code>respHat</code> and <code>response</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">response.pred &lt;-<span class="st"> </span><span class="kw">posterior_predict</span>(fit.emax, <span class="dt">newdata =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">1000</span>), <span class="dt">returnType =</span> <span class="st">&quot;tibble&quot;</span>)
+
+response.pred <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(mcmcid, exposure, respHat, response)
+<span class="co">#&gt; # A tibble: 12,000 x 4</span>
+<span class="co">#&gt;    mcmcid exposure respHat response</span>
+<span class="co">#&gt;     &lt;int&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;</span>
+<span class="co">#&gt;  1      1        0    9.34   12.9  </span>
+<span class="co">#&gt;  2      1      100   63.3    72.8  </span>
+<span class="co">#&gt;  3      1     1000  103.     76.2  </span>
+<span class="co">#&gt;  4      2        0    6.94   -8.14 </span>
+<span class="co">#&gt;  5      2      100   59.2    56.3  </span>
+<span class="co">#&gt;  6      2     1000  105.     64.1  </span>
+<span class="co">#&gt;  7      3        0    6.83    0.523</span>
+<span class="co">#&gt;  8      3      100   59.7    81.7  </span>
+<span class="co">#&gt;  9      3     1000  108.    130.   </span>
+<span class="co">#&gt; 10      4        0    4.16    3.16 </span>
+<span class="co">#&gt; # ... with 11,990 more rows</span></code></pre></div>
+<p>You can also get quantiles of predictions with <code>posterior_predict_quantile()</code> function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resp.pred.quantile &lt;-<span class="st"> </span><span class="kw">posterior_predict_quantile</span>(fit.emax, <span class="dt">newdata =</span> <span class="kw">seq</span>(<span class="dv">0</span>, <span class="dv">1000</span>, <span class="dt">by =</span> <span class="dv">250</span>))
+resp.pred.quantile
+<span class="co">#&gt; # A tibble: 5 x 7</span>
+<span class="co">#&gt;   exposure ci_low ci_med ci_high pi_low pi_med pi_high</span>
+<span class="co">#&gt;      &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt; 1        0  0.162   6.80    13.4  -27.3   6.09    40.1</span>
+<span class="co">#&gt; 2      250 78.7    83.1     87.5   50.5  83.7    116. </span>
+<span class="co">#&gt; 3      500 91.6    95.6     99.9   62.2  95.6    130. </span>
+<span class="co">#&gt; 4      750 96.3   101.     106.    66.3 101.     135. </span>
+<span class="co">#&gt; 5     1000 98.9   104.     109.    69.8 103.     136.</span></code></pre></div>
+<p>This is particularly useful when you want to plot the estimated Emax curve.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(resp.pred.quantile, <span class="kw">aes</span>(exposure, ci_med)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_ribbon</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>ci_low, <span class="dt">ymax=</span>ci_high), <span class="dt">alpha =</span> .<span class="dv">5</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_ribbon</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>pi_low, <span class="dt">ymax=</span>pi_high), <span class="dt">alpha =</span> .<span class="dv">2</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;response&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+<div id="fix-parameter-values-in-emax-model" class="section level1">
+<h1>Fix parameter values in Emax model</h1>
+<p>You can fix parameter values in Emax model for E0 and/or gamma (Hill coefficient). See help of <code>stan_emax()</code> for the details. The default is to fix gamma at 1 and to estimate E0 from data.</p>
+<p>Below is the example of estimating gamma from data.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(exposure.response.sample)
+
+fit.emax.sigmoidal &lt;-<span class="st"> </span><span class="kw">stan_emax</span>(response <span class="op">~</span><span class="st"> </span>exposure, <span class="dt">data =</span> exposure.response.sample, <span class="dt">gamma.fix =</span> <span class="ot">NULL</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">fit.emax.sigmoidal
+<span class="co">#&gt; Inference for Stan model: emax.</span>
+<span class="co">#&gt; 4 chains, each with iter=2000; warmup=1000; thin=1; </span>
+<span class="co">#&gt; post-warmup draws per chain=1000, total post-warmup draws=4000.</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;         mean se_mean    sd  2.5%    25%    50%    75%  97.5% n_eff Rhat</span>
+<span class="co">#&gt; emax  107.57    0.26 10.02 91.41 100.85 106.35 112.87 131.77  1482    1</span>
+<span class="co">#&gt; e0      7.02    0.09  4.21 -1.34   4.24   7.04   9.81  15.30  2009    1</span>
+<span class="co">#&gt; ec50  105.78    0.82 31.47 67.24  85.92  99.37 116.62 187.78  1464    1</span>
+<span class="co">#&gt; gamma   1.02    0.00  0.21  0.64   0.88   1.01   1.15   1.48  1861    1</span>
+<span class="co">#&gt; sigma  20.13    0.02  1.30 17.82  19.22  20.05  20.93  22.89  2849    1</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Samples were drawn using NUTS(diag_e) at Tue May 28 23:30:18 2019.</span>
+<span class="co">#&gt; For each parameter, n_eff is a crude measure of effective sample size,</span>
+<span class="co">#&gt; and Rhat is the potential scale reduction factor on split chains (at </span>
+<span class="co">#&gt; convergence, Rhat=1).</span></code></pre></div>
+<p>You can compare the difference of posterior predictions between two models (in this case they are very close to each other):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+exposure_pred &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="kw">min</span>(exposure.response.sample<span class="op">$</span>exposure),
+                     <span class="kw">max</span>(exposure.response.sample<span class="op">$</span>exposure),
+                     <span class="dt">length.out =</span> <span class="dv">100</span>)
+
+pred1 &lt;-<span class="st"> </span>
+<span class="st">  </span><span class="kw">posterior_predict_quantile</span>(fit.emax, exposure_pred) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="st">&quot;Emax&quot;</span>)
+pred2 &lt;-<span class="st"> </span>
+<span class="st">  </span><span class="kw">posterior_predict_quantile</span>(fit.emax.sigmoidal, exposure_pred) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">model =</span> <span class="st">&quot;Sigmoidal Emax&quot;</span>)
+
+pred &lt;-<span class="st"> </span><span class="kw">bind_rows</span>(pred1, pred2)
+
+
+<span class="kw">ggplot</span>(pred, <span class="kw">aes</span>(exposure, ci_med, <span class="dt">color =</span> model, <span class="dt">fill =</span> model)) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_line</span>() <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_ribbon</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>ci_low, <span class="dt">ymax=</span>ci_high), <span class="dt">alpha =</span> .<span class="dv">3</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_ribbon</span>(<span class="kw">aes</span>(<span class="dt">ymin=</span>pi_low, <span class="dt">ymax=</span>pi_high), <span class="dt">alpha =</span> .<span class="dv">1</span>, <span class="dt">color =</span> <span class="ot">NA</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data=</span>exposure.response.sample, <span class="kw">aes</span>(exposure, response), 
+             <span class="dt">color =</span> <span class="st">&quot;black&quot;</span>, <span class="dt">fill =</span> <span class="ot">NA</span>, <span class="dt">size=</span><span class="dv">2</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;response&quot;</span>)</code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
