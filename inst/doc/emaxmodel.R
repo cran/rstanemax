@@ -1,54 +1,63 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----message=FALSE-------------------------------------------------------
+## ----message=FALSE------------------------------------------------------------
 library(rstanemax)
 library(dplyr)
 library(ggplot2)
 set.seed(12345)
 
-## ---- results="hide"-----------------------------------------------------
+## ---- results="hide"----------------------------------------------------------
 data(exposure.response.sample)
 
-fit.emax <- stan_emax(response ~ exposure, data = exposure.response.sample)
+fit.emax <- stan_emax(response ~ exposure, data = exposure.response.sample,
+                      # the next line is only to make the example go fast enough
+                      chains = 2, iter = 1000, seed = 12345)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 fit.emax
 
-## ---- fig.show='hold'----------------------------------------------------
+## ----plot_example, fig.show='hold'--------------------------------------------
 plot(fit.emax)
 
-## ------------------------------------------------------------------------
-class(fit.emax$stanfit)
+## -----------------------------------------------------------------------------
+class(extract_stanfit(fit.emax))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 response.pred <- posterior_predict(fit.emax, newdata = c(0, 100, 1000), returnType = "tibble")
 
 response.pred %>% select(mcmcid, exposure, respHat, response)
 
-## ------------------------------------------------------------------------
-resp.pred.quantile <- posterior_predict_quantile(fit.emax, newdata = seq(0, 1000, by = 250))
+## -----------------------------------------------------------------------------
+resp.pred.quantile <- posterior_predict_quantile(fit.emax, newdata = seq(0, 5000, by = 100))
 resp.pred.quantile
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
+obs.formatted <- extract_obs_mod_frame(fit.emax)
+
+## ----plot_with_pp, fig.show='hold'--------------------------------------------
 ggplot(resp.pred.quantile, aes(exposure, ci_med)) +
   geom_line() + 
   geom_ribbon(aes(ymin=ci_low, ymax=ci_high), alpha = .5) +
   geom_ribbon(aes(ymin=pi_low, ymax=pi_high), alpha = .2) +
+  geom_point(data = obs.formatted,
+             aes(y = response)) +
   labs(y = "response")
 
-## ---- results="hide"-----------------------------------------------------
+## ---- results="hide"----------------------------------------------------------
 data(exposure.response.sample)
 
-fit.emax.sigmoidal <- stan_emax(response ~ exposure, data = exposure.response.sample, gamma.fix = NULL)
+fit.emax.sigmoidal <- stan_emax(response ~ exposure, data = exposure.response.sample, gamma.fix = NULL,
+                                # the next line is only to make the example go fast enough
+                                chains = 2, iter = 1000, seed = 12345)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 fit.emax.sigmoidal
 
-## ----fig.width = 6, fig.height = 4---------------------------------------
+## ----plot_with_gamma_fix, fig.width = 6, fig.height = 4, fig.show='hold'------
 
 exposure_pred <- seq(min(exposure.response.sample$exposure),
                      max(exposure.response.sample$exposure),
@@ -75,4 +84,20 @@ ggplot(pred, aes(exposure, ci_med, color = model, fill = model)) +
 
 
  
+
+## ---- results="hide"----------------------------------------------------------
+data(exposure.response.sample.test)
+
+test.data <-
+  mutate(exposure.response.sample.test,
+         SEX = ifelse(cov2 == 0, "MALE", "FEMALE"))
+
+fit.cov <- stan_emax(formula = resp ~ conc, data = test.data,
+                     param.cov = list(emax = "SEX"),
+                     # the next line is only to make the example go fast enough
+                     chains = 2, iter = 1000, seed = 12345)
+
+## ----plot_with_cov, fig.show='hold'-------------------------------------------
+fit.cov
+plot(fit.cov)
 
