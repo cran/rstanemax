@@ -1,4 +1,11 @@
 
+# rstanemax 0.1.2
+
+## Minor changes
+
+* You can now fix Emax with `emax.fix` argument for `stan_emax()` function.
+
+
 # rstanemax 0.1.1
 
 ## Breaking changes

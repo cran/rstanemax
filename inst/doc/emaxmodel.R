@@ -50,7 +50,8 @@ ggplot(resp.pred.quantile, aes(exposure, ci_med)) +
 ## ---- results="hide"----------------------------------------------------------
 data(exposure.response.sample)
 
-fit.emax.sigmoidal <- stan_emax(response ~ exposure, data = exposure.response.sample, gamma.fix = NULL,
+fit.emax.sigmoidal <- stan_emax(response ~ exposure, data = exposure.response.sample, 
+                                gamma.fix = NULL,
                                 # the next line is only to make the example go fast enough
                                 chains = 2, iter = 1000, seed = 12345)
 
@@ -97,7 +98,27 @@ fit.cov <- stan_emax(formula = resp ~ conc, data = test.data,
                      # the next line is only to make the example go fast enough
                      chains = 2, iter = 1000, seed = 12345)
 
-## ----plot_with_cov, fig.show='hold'-------------------------------------------
+## ----plot_with_cov, fig.width = 6, fig.height = 4, fig.show='hold'------------
 fit.cov
 plot(fit.cov)
+
+## ----compare_emax, fig.show='hold'--------------------------------------------
+emax.posterior <- 
+  fit.cov %>% 
+  extract_stanfit() %>% 
+  rstan::extract(pars = "emax") %>% 
+  .$emax
+
+# delta = emax[FEMALE] - emax[MALE]
+delta.emax.posterior <- emax.posterior[,1] - emax.posterior[,2]
+
+ggplot2::qplot(delta.emax.posterior, bins = 30) +
+  ggplot2::labs(x = "emax[FEMALE] - emax[MALE]")
+
+# Credible interval of delta
+quantile(delta.emax.posterior, probs = c(0.025, 0.05, 0.5, 0.95, 0.975))
+
+# Posterior probability of emax[FEMALE] < emax[MALE]
+sum(delta.emax.posterior < 0) / length(delta.emax.posterior)
+
 

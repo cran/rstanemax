@@ -14,10 +14,10 @@ extract_stanfit(x)
 
 extract_obs_mod_frame(x)
 
-\method{plot}{stanemax}(x, show.ci = TRUE, show.pi = FALSE, ...)
+\method{plot}{stanemax}(x, show.ci = TRUE, show.pi = FALSE, ci = 0.9, pi = 0.9, ...)
 }
 \arguments{
-\item{x}{An object of class `stanemax`}
+\item{x}{An object of class \code{stanemax}}
 
 \item{digits_summary}{The number of significant digits to use when printing
 the summary, defaulting to 2. Applies to the quantities other than the
@@ -30,6 +30,10 @@ credible interval of posterior prediction. Default TRUE.}
 
 \item{show.pi}{An logical specifying if the output figure include
 prediction interval. Default FALSE.}
+
+\item{ci}{Credible interval range.}
+
+\item{pi}{Prediction interval range.}
 }
 \description{
 Methods for stanemax objects

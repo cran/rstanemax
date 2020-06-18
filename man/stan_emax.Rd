@@ -9,6 +9,7 @@ stan_emax(
   data,
   gamma.fix = 1,
   e0.fix = NULL,
+  emax.fix = NULL,
   priors = NULL,
   param.cov = NULL,
   ...
@@ -19,7 +20,7 @@ stan_emax(
 
 \item{data}{an optional data frame containing the variables in the model.}
 
-\item{gamma.fix}{a numeric or NULL to specify gamma (Hill coefficient) in the sigmoidal Emax model.
+\item{gamma.fix}{a (positive) numeric or NULL to specify gamma (Hill coefficient) in the sigmoidal Emax model.
 If NULL, gamma will be estimated from the data.
 If numeric, gamma is fixed at the number provided.
 Default = 1 (normal Emax model).}
@@ -27,6 +28,11 @@ Default = 1 (normal Emax model).}
 \item{e0.fix}{a numeric or NULL to specify E0 in the Emax model.
 If NULL, E0 will be estimated from the data.
 If numeric, E0 is fixed at the number provided.
+Default = NULL (estimate from the data).}
+
+\item{emax.fix}{a numeric or NULL to specify Emax in the Emax model.
+If NULL, Emax will be estimated from the data.
+If numeric, Emax is fixed at the number provided.
 Default = NULL (estimate from the data).}
 
 \item{priors}{a named list specifying priors of parameters (ec50, emax, e0, gamma, sigma).
@@ -37,20 +43,21 @@ Currently only supports normal distribution for priors.}
 \item{param.cov}{a named list specifying categorical covariates on parameters (ec50, emax, e0).
 Convert a column into factor if specific order of covariates are needed.}
 
-\item{...}{Arguments passed to `rstan::sampling` (e.g. iter, chains).}
+\item{...}{Arguments passed to \link[rstan:stanmodel-method-sampling]{rstan::sampling} (e.g. iter, chains).}
 }
 \value{
-An object of class `stanemax`
+An object of class \code{stanemax}
 }
 \description{
 Run sigmoidal Emax model fit with formula notation
 }
 \details{
 The following structure is used for the Emax model:
-\deqn{Response = e_0 + e_{max} exposure ^{\gamma} / (ec50 + exposure) ^{\gamma} + \epsilon}{Response = e0 + emax * exposure ^ gamma / (ec50 + exposure) ^ gamma + epsilon}
-\deqn{\epsilon ~ N(0, \sigma^2)}{epsilon ~ N(0, sigma ^ 2)}
+\deqn{Response = e_0 + e_{max} \times exposure ^{\gamma} / (ec50 ^{\gamma} + exposure ^ {\gamma}) + \epsilon}{Response = e0 + emax * exposure ^ gamma / (ec50 ^ gamma + exposure ^ gamma)  + epsilon}
+\deqn{\epsilon \sim N(0, \sigma^2)}{epsilon ~ N(0, sigma ^ 2)}
 }
 \examples{
+\dontrun{
 data(exposure.response.sample)
 fit1 <- stan_emax(response ~ exposure, data = exposure.response.sample,
                   # the next line is only to make the example go fast enough
@@ -65,12 +72,13 @@ fit2 <- stan_emax(response ~ exposure, data = exposure.response.sample, gamma.fi
                   chains = 1, iter = 500, seed = 12345)
 print(fit2)
 
+data(exposure.response.sample.test)
 # Specify covariates
 fit3 <- stan_emax(formula = resp ~ conc, data = exposure.response.sample.test,
                   param.cov = list(emax = "cov2", ec50 = "cov3", e0 = "cov1"),
                   # the next line is only to make the example go fast enough
                   chains = 1, iter = 500, seed = 12345)
 print(fit3)
-
+}
 
 }
