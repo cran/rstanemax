@@ -23,6 +23,9 @@ fit.emax
 ## ----plot_example, fig.show='hold'--------------------------------------------
 plot(fit.emax)
 
+## ----plot_example_log, fig.show='hold'----------------------------------------
+plot(fit.emax) + scale_x_log10() + expand_limits(x = 1)
+
 ## -----------------------------------------------------------------------------
 class(extract_stanfit(fit.emax))
 

@@ -1,5 +1,5 @@
 Package: rstanemax
-Version: 0.1.2
+Version: 0.1.3
 Title: Emax Model Analysis with 'Stan'
 Description: Perform sigmoidal Emax model fit using 'Stan' in a formula notation, without writing 'Stan' model code.
 Authors@R: c(
@@ -19,16 +19,16 @@ LinkingTo: StanHeaders (>= 2.18.1), rstan (>= 2.18.2), BH (>=
         1.69.0-1), Rcpp (>= 1.0.0), RcppEigen (>= 0.3.3.5.0)
 SystemRequirements: GNU make
 NeedsCompilation: yes
-RoxygenNote: 7.1.0.9000
+RoxygenNote: 7.1.1
 Suggests: testthat, knitr, rmarkdown, spelling
 VignetteBuilder: knitr
 Language: en-US
 URL: https://github.com/yoshidk6/rstanemax
 BugReports: https://github.com/yoshidk6/rstanemax/issues
-Packaged: 2020-06-18 15:02:29 UTC; yoshidk6
+Packaged: 2020-11-24 06:54:14 UTC; yoshidk6
 Author: Kenta Yoshida [aut, cre] (<https://orcid.org/0000-0003-4967-3831>),
   Trustees of Columbia University [cph] (src/init.cpp, tools/make_cc.R,
     R/stanmodels.R)
 Maintainer: Kenta Yoshida <6.kurabupasu@gmail.com>
 Repository: CRAN
-Date/Publication: 2020-06-18 15:30:02 UTC
+Date/Publication: 2020-11-24 07:50:02 UTC

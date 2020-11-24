@@ -143,7 +143,7 @@ plot.stanemax <- function(x, show.ci = TRUE, show.pi = FALSE,
   g <- g + ggplot2::geom_line()
 
 
-  print(g)
+  g
 
 }
 
@@ -155,7 +155,9 @@ create_exposure_range <- function(standata, length.out = 50){
   max.newdata <- max(standata$exposure)
 
   seq.normal.scale <- seq(min.newdata, max.newdata, length.out = length.out)
-  seq.log.scale <- seq(min.nozero.newdata, max.newdata, length.out = length.out)
+  seq.log.scale <- exp(seq(log(min.nozero.newdata),
+                           log(max.newdata),
+                           length.out = length.out))
 
   exposure.range <- dplyr::tibble(exposure = sort(c(seq.normal.scale, seq.log.scale)))
 
