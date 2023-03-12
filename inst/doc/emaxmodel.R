@@ -50,6 +50,10 @@ ggplot(resp.pred.quantile, aes(exposure, ci_med)) +
              aes(y = response)) +
   labs(y = "response")
 
+## -----------------------------------------------------------------------------
+posterior.fit.emax <- extract_param(fit.emax)
+posterior.fit.emax
+
 ## ---- results="hide"----------------------------------------------------------
 data(exposure.response.sample)
 
@@ -90,11 +94,11 @@ ggplot(pred, aes(exposure, ci_med, color = model, fill = model)) +
  
 
 ## ---- results="hide"----------------------------------------------------------
-data(exposure.response.sample.test)
+data(exposure.response.sample.with.cov)
 
 test.data <-
-  mutate(exposure.response.sample.test,
-         SEX = ifelse(cov2 == 0, "MALE", "FEMALE"))
+  mutate(exposure.response.sample.with.cov,
+         SEX = ifelse(cov2 == "B0", "MALE", "FEMALE"))
 
 fit.cov <- stan_emax(formula = resp ~ conc, data = test.data,
                      param.cov = list(emax = "SEX"),
@@ -106,22 +110,23 @@ fit.cov
 plot(fit.cov)
 
 ## ----compare_emax, fig.show='hold'--------------------------------------------
+
+fit.cov.posterior <- 
+  extract_param(fit.cov)
+
 emax.posterior <- 
-  fit.cov %>% 
-  extract_stanfit() %>% 
-  rstan::extract(pars = "emax") %>% 
-  .$emax
+  fit.cov.posterior %>% 
+  select(mcmcid, SEX, emax) %>% 
+  tidyr::pivot_wider(names_from = SEX, values_from = emax) %>% 
+  mutate(delta = FEMALE - MALE)
 
-# delta = emax[FEMALE] - emax[MALE]
-delta.emax.posterior <- emax.posterior[,1] - emax.posterior[,2]
-
-ggplot2::qplot(delta.emax.posterior, bins = 30) +
+ggplot2::qplot(delta, data = emax.posterior, bins = 30) +
   ggplot2::labs(x = "emax[FEMALE] - emax[MALE]")
 
 # Credible interval of delta
-quantile(delta.emax.posterior, probs = c(0.025, 0.05, 0.5, 0.95, 0.975))
+quantile(emax.posterior$delta, probs = c(0.025, 0.05, 0.5, 0.95, 0.975))
 
 # Posterior probability of emax[FEMALE] < emax[MALE]
-sum(delta.emax.posterior < 0) / length(delta.emax.posterior)
+sum(emax.posterior$delta < 0) / nrow(emax.posterior)
 
 
