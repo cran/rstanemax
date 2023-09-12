@@ -1,7 +1,7 @@
-9a69ce93a041f221e400c6324cb1a907 *DESCRIPTION
+fd4339e81019654fdaff245ad9630f06 *DESCRIPTION
 1ebbd3e34237af26da5dc08a4e440464 *LICENSE
 de7394b450ac427f1d4dd11a9aced784 *NAMESPACE
-b7677b2edfbb99a5218e1570e1165220 *NEWS.md
+0ea758a6367e16a73ed5376fa2d4e629 *NEWS.md
 4fe433e7b5632ec4865382a0b952542f *R/create_model_frame.R
 94f1937c29a2695aa24c2bc3374e28d3 *R/extract_param.R
 7b58d91250fbfa85cf1097b9ca4e0b20 *R/posterior_predict.R
@@ -20,9 +20,9 @@ f44763b9a5002494cec161ac2b2a79b0 *build/vignette.rds
 b2ff483c3c2aa05095815f615caf715a *data/exposure.response.sample.with.cov.rda
 3deac775bcecc6413524ccde414bed71 *inst/doc/emaxmodel.R
 0403d0cccffe6bcaf2794442b2d9a2bc *inst/doc/emaxmodel.Rmd
-9737c2cd763f241451b68b32660549ec *inst/doc/emaxmodel.html
+f59b24102daa775ab024cfc036d7b979 *inst/doc/emaxmodel.html
 855c064dbf8deaff96c8dc8a87169109 *inst/include/stan_meta_header.hpp
-bb74ee17e2fd4535e4ac873f542cdc1a *inst/stan/emax.stan
+96fdf005c48e134ba6385386f3998fe9 *inst/stan/emax.stan
 e4f41e6b1baa2e9a10f938be0b94b2fc *inst/stan/include/license.stan
 d36a2a121f033c1cfbbecf54061ff401 *man/exposure.response.sample.Rd
 961f0b875350e712e2887a8e0b439ffe *man/exposure.response.sample.with.cov.Rd
@@ -34,11 +34,11 @@ b8f8a1cbf3a5afc81d1df65fa2f2df03 *man/reexports.Rd
 8b809ee953dc61412a5de782e7a12d5d *man/rstanemax-package.Rd
 5a8c643bbd995ffce707782d1387845f *man/stan_emax.Rd
 155fdd0910e7ca81e9a8001eac9a30ef *man/stanemax-methods.Rd
-8eb94ab0ca38362bef9a1ae171d63fad *src/Makevars
+564c40d0e86bb1e58d039ff240e97b9f *src/Makevars
 457929755cc1db9abe969d16b0006005 *src/Makevars.win
 4e91a7216e3d4cdfe2695f4881c37228 *src/RcppExports.cpp
 bc158de4241d34f0b201f90217b76d46 *src/stanExports_emax.cc
-ad2822394d2c5d776cd8e6024c135b48 *src/stanExports_emax.h
+cb6964fe359cc93aa667137af6ebf18f *src/stanExports_emax.h
 0622a97a2aaa3c342f09636052c2d7f5 *tests/spelling.R
 54cedcccc10c65b229c97de1a471634f *tests/testthat.R
 ed40963a9daca195acf5be7bbfd85dfd *tests/testthat/test-create_model_frame.R
