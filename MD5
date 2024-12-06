@@ -1,11 +1,11 @@
-65d6bc9a35a1cfa2eb427a1344d23bb3 *DESCRIPTION
+f94f560a48928c144f4a91b091e700b9 *DESCRIPTION
 1ebbd3e34237af26da5dc08a4e440464 *LICENSE
 bddde6889c1abbabd93d749ce4b9ff3e *NAMESPACE
-0399a06a4e9668e20f69dc5093f30423 *NEWS.md
+af94681d668111bf31bc09a14b0854de *NEWS.md
 ac0da42af26a3f39b9bd352e8f70437b *R/as_draws.R
 6ab8f7cc582d4086206f6daedee5cda6 *R/create_model_frame.R
 2f773f6e04a5d006bc1241b0777fd299 *R/extract_param.R
-50f45561c37b87ff59a72af812c431dc *R/posterior_predict.R
+adbcd1f1b49ffd1e4010c31e66fd3d9f *R/posterior_predict.R
 609b4a223b3774a3b8ceab4b1d50d7bd *R/rstanemax-package.R
 24dce8dfb8f06b030070e2696d1e936f *R/set_prior.R
 43635405090d7280d1df787832edc81f *R/stan_emax.R
@@ -22,7 +22,7 @@ fdc3b8d296e57bc2754fc667c9a7c683 *data/exposure.response.sample.binary.rda
 b2ff483c3c2aa05095815f615caf715a *data/exposure.response.sample.with.cov.rda
 b5fba520ef2096b5204a66e1e46da8cd *inst/doc/emaxmodel.R
 07eff190973dcfcd34b2c5a31357750f *inst/doc/emaxmodel.Rmd
-f53aa3ef79b519ad02388bf9c9e79df3 *inst/doc/emaxmodel.html
+64bc783864ef0b22c7b32d328f2108d0 *inst/doc/emaxmodel.html
 855c064dbf8deaff96c8dc8a87169109 *inst/include/stan_meta_header.hpp
 96fdf005c48e134ba6385386f3998fe9 *inst/stan/emax.stan
 9f1188e5735d35e8f0843fa244d4cd29 *inst/stan/emax_binary.stan
@@ -34,7 +34,7 @@ bcd236bbc72f8f055662eaaa7103fd1f *man/exposure.response.sample.binary.Rd
 64fb60f5811a2e6c7517c75e5b002352 *man/extract_param.Rd
 cd79e7640c5747a1159c3b0d40dfffc4 *man/figures/README-unnamed-chunk-1-1.png
 e9cf34c7eddc4bd3acd1ad5f70baa2fd *man/figures/README-unnamed-chunk-3-1.png
-0f97f7045fb500b2277411c1b1cb2621 *man/posterior_predict.Rd
+f5c2e42f89b3ade42ecdcdeb527414f0 *man/posterior_predict.Rd
 b8f8a1cbf3a5afc81d1df65fa2f2df03 *man/reexports.Rd
 f0d3f17b9fd5403236f3aac2c407e71c *man/rstanemax-package.Rd
 baf875c02c40dcfd46a37ff857820ad7 *man/stan_emax.Rd
@@ -52,8 +52,8 @@ bc158de4241d34f0b201f90217b76d46 *src/stanExports_emax.cc
 d79a7c02d076e769c283de342f8053c5 *tests/testthat/test-as_draws.R
 782fee859e88154b02f08372692e1bb1 *tests/testthat/test-create_model_frame.R
 ff68aeb81336f12cb06c6d5193c88a15 *tests/testthat/test-extract_param.R
-c801d5979721578a33a6261a72c212d5 *tests/testthat/test-posterior_predict.R
+814b0fa2109ca5bcf1ba925891d05e52 *tests/testthat/test-posterior_predict.R
 c58d288b20002c8ce2b276a36691ab29 *tests/testthat/test-set_prior.R
 fcbbb877946b8fce709b53a86ffe3451 *tests/testthat/test-stan_emax.R
-041538721a57a2cd55883c351ad9dd47 *tests/testthat/test-stan_emax_binary.R
+b034c857a51ce2fda1b5c83a2dff3dc7 *tests/testthat/test-stan_emax_binary.R
 07eff190973dcfcd34b2c5a31357750f *vignettes/emaxmodel.Rmd
